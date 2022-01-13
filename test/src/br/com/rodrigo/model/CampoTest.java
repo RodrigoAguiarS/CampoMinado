@@ -1,10 +1,11 @@
 package br.com.rodrigo.model;
 
 
+import br.com.rodrigo.exception.ExplosaoException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CampoTest {
     private Campo campo;
@@ -13,10 +14,95 @@ public class CampoTest {
         campo = new Campo(3, 3);
     }
     @Test
-    void testVizinhoRealDistancia1(){
+    void testVizinhoDistancia1Esquerda(){
         Campo vizinho = new Campo(3, 2);
         boolean resultado = campo.adicionarVizinho(vizinho);
         assertTrue(resultado);
+    }
+    @Test
+    void testVizinhoDistancia1Direita(){
+        Campo vizinho = new Campo(3, 4);
+        boolean resultado = campo.adicionarVizinho(vizinho);
+        assertTrue(resultado);
+    }
+    @Test
+    void testVizinhoDistancia1EmCima(){
+        Campo vizinho = new Campo(2, 3);
+        boolean resultado = campo.adicionarVizinho(vizinho);
+        assertTrue(resultado);
+    }
+    @Test
+    void testVizinhoDistancia1EmBaixo() {
+        Campo vizinho = new Campo(4, 3);
+        boolean resultado = campo.adicionarVizinho(vizinho);
+        assertTrue(resultado);
+    }
+    @Test
+    void testeValorPadraoAtributoMarcado(){
+
+        assertFalse(campo.isMarcado());
+    }
+    @Test
+    void testeAlternaMarcacao(){
+        campo.altenarMarcacao();
+        assertTrue(campo.isMarcado());
+    }
+    @Test
+    void testeAlternaMarcacaoDuasChamadas(){
+        campo.altenarMarcacao();
+        campo.altenarMarcacao();
+        assertFalse(campo.isMarcado());
+    }
+    @Test
+    void testeAbrirNaoMinadoNaoMarcado() {
+        assertTrue(campo.abrir());
+    }
+    @Test
+    void testeAbrirNaoMinadoMarcado() {
+        campo.altenarMarcacao();
+        assertFalse(campo.abrir());
+    }
+
+    @Test
+    void testeAbrirMinadoMarcado() {
+        campo.altenarMarcacao();
+        campo.minar();
+        assertFalse(campo.abrir());
+    }
+    @Test
+    void testeAbrirMinadoNaoMarcado() {
+        campo.minar();
+        assertThrows(ExplosaoException.class, () -> {
+            campo.abrir();
+        });
+    }
+    @Test
+    void testeAbrirComVizinho1() {
+        Campo campo11 = new Campo(1, 1);
+        Campo campo22 = new Campo(2, 2);
+        campo22.adicionarVizinho(campo11);
+
+        campo.adicionarVizinho(campo22);
+
+        campo.abrir();
+
+        assertTrue(campo22.isAberto() && campo11.isAberto());
+
+    }
+    @Test
+    void testeAbrirComVizinho2() {
+        Campo campo11 = new Campo(1, 1);
+        Campo campo12 = new Campo(1, 1);
+        campo12.minar();
+        Campo campo22 = new Campo(2, 2);
+        campo22.adicionarVizinho(campo11);
+        campo22.adicionarVizinho(campo12);
+
+        campo.adicionarVizinho(campo22);
+
+        campo.abrir();
+
+        assertTrue(campo22.isAberto() && campo11.isFechado());
 
     }
 }
