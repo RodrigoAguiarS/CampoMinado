@@ -20,7 +20,19 @@ public class Tabuleiro {
         associarOsVizinhos();
         sortearMinas();
     }
+    public void abrir(int linha, int coluna) {
+        campos.parallelStream()
+                .filter(c -> c.getLinha() == linha && c.getColuna() == coluna)
+                .findFirst().ifPresent(c -> c.abrir());
 
+
+    }
+    public void alternarMarcacao(int linha, int coluna) {
+        campos.parallelStream()
+                .filter(c -> c.getLinha() == linha && c.getColuna() == coluna)
+                .findFirst().ifPresent(c -> c.altenarMarcacao());
+
+    }
     private void sortearMinas() {
         long minasArmadas = 0;
         Predicate<Campo> minado = c -> c.isMinado();
@@ -52,5 +64,19 @@ public class Tabuleiro {
     public void reiniciar(){
        campos.stream().forEach(c -> c.reiniciar());
        sortearMinas();
+    }
+    public String toString(){
+        StringBuilder stringBuilder = new StringBuilder();
+        int i = 0;
+        for (int l = 0; l < linhas; l++){
+            for (int c = 0; c < colunas; c++){
+                stringBuilder.append(" ");
+                stringBuilder.append(campos.get(i));
+                stringBuilder.append(" ");
+                i++;
+            }
+            stringBuilder.append("\n");
+        }
+        return stringBuilder.toString();
     }
 }
