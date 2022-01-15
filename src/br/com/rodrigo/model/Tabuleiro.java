@@ -1,5 +1,7 @@
 package br.com.rodrigo.model;
 
+import br.com.rodrigo.exception.ExplosaoException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -21,11 +23,16 @@ public class Tabuleiro {
         sortearMinas();
     }
     public void abrir(int linha, int coluna) {
-        campos.parallelStream()
-                .filter(c -> c.getLinha() == linha && c.getColuna() == coluna)
-                .findFirst().ifPresent(c -> c.abrir());
+        try {
+            campos.parallelStream()
+                    .filter(c -> c.getLinha() == linha && c.getColuna() == coluna)
+                    .findFirst().ifPresent(c -> c.abrir());
 
+        }catch (ExplosaoException explosaoException){
+            campos.forEach(c -> c.setAberto(true));
+            throw explosaoException;
 
+        }
     }
     public void alternarMarcacao(int linha, int coluna) {
         campos.parallelStream()
@@ -37,9 +44,9 @@ public class Tabuleiro {
         long minasArmadas = 0;
         Predicate<Campo> minado = c -> c.isMinado();
         do {
-            minasArmadas = campos.stream().filter(minado).count();
             int aleatorio = (int) (Math.random() * campos.size());
             campos.get(aleatorio).minar();
+            minasArmadas = campos.stream().filter(minado).count();
         }while (minasArmadas < minas);
     }
 
@@ -67,8 +74,17 @@ public class Tabuleiro {
     }
     public String toString(){
         StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("  ");
+        for (int c = 0; c < colunas; c++){
+            stringBuilder.append(" ");
+            stringBuilder.append(c);
+            stringBuilder.append(" ");
+        }
+        stringBuilder.append("\n");
         int i = 0;
         for (int l = 0; l < linhas; l++){
+            stringBuilder.append(l);
+            stringBuilder.append(" ");
             for (int c = 0; c < colunas; c++){
                 stringBuilder.append(" ");
                 stringBuilder.append(campos.get(i));
